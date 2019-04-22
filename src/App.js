@@ -1,4 +1,4 @@
-// Importing components from relative path 
+// Importing components from relative path
 import React from "react";
 import Weather from "./components/weather";
 import Form from "./components/form";
@@ -9,12 +9,13 @@ const Api_Key = "8d2de98e089f1c28e1a22fc19a24ef04";
 
 class App extends React.Component {
 
-  // Initialize state to undefined for all relevant data points 
+  // Initialize state to undefined for all relevant data points
   state = {
     temperature: undefined,
     city: undefined,
     country: undefined,
     humidity: undefined,
+    windspeed: undefined,
     description: undefined,
     error: undefined
   }
@@ -26,8 +27,8 @@ class App extends React.Component {
     // Store city and country values based on current value in form
     const city = e.target.elements.city.value;
     const country = e.target.elements.country.value;
-    e.preventDefault();   
-    // fetch keyword for API call, await to show it's asynchronous, 
+    e.preventDefault();
+    // fetch keyword for API call, await to show it's asynchronous,
     // URL defined at https://openweathermap.org/current
     const api_call = await fetch(`http://api.openweathermap.org/data/2.5/weather?q=${city},${country}&units=imperial&appid=${Api_Key}`);
     // response stored as json in `response` variable
@@ -39,6 +40,35 @@ class App extends React.Component {
         city: response.name,
         country: response.sys.country,
         humidity: response.main.humidity,
+        windspeed: response.wind.speed,
+        description: response.weather[0].description,
+        error: ""
+      })
+    }else{
+      this.setState({
+        error: "Please input search values..."
+      })
+    }
+  }
+
+  getWeather2 = async (e) => {
+    // Store city and country values based on current value in form
+    const zip = e.target.elements.zip.value;
+    const country = e.target.elements.country2.value;
+    e.preventDefault();
+    // fetch keyword for API call, await to show it's asynchronous,
+    // URL defined at https://openweathermap.org/current
+    const api_call = await fetch(`http://api.openweathermap.org/data/2.5/weather?q=${zip},${country}&units=imperial&appid=${Api_Key}`);
+    // response stored as json in `response` variable
+    const response = await api_call.json();
+    console.log(response);
+    if(zip && country){
+      this.setState({
+        temperature: response.main.temp,
+        city: response.name,
+        country: response.sys.country,
+        humidity: response.main.humidity,
+        windspeed: response.wind.speed,
         description: response.weather[0].description,
         error: ""
       })
@@ -50,11 +80,11 @@ class App extends React.Component {
   }
 
   // Render function updates view whenever the state changes
-  // Components that were imported (Titles, Weather, Form) are called below as HTML tags, 
+  // Components that were imported (Titles, Weather, Form) are called below as HTML tags,
   //   with props as attributes associated with that component
   // Within the tag, props can be passed in to populate the component with the syntax
   //   <componentName prop={value}>
-  // Look at the component definitions within the imported files (lines 2-5) 
+  // Look at the component definitions within the imported files (lines 2-5)
   //   to see how the props populate each component!
   render() {
 
@@ -68,12 +98,16 @@ class App extends React.Component {
                   <Titles />
                 </div>
                 <div className="col-xs-7 form-container">
-                  <Form loadWeather={this.getWeather} />
+                  <Form
+                    loadWeather={this.getWeather}
+                    loadWeather2={this.getWeather2}
+                  />
                   <Weather
                     temperature={this.state.temperature}
                     city={this.state.city}
                     country={this.state.country}
                     humidity={this.state.humidity}
+                    windspeed={this.state.windspeed}
                     description={this.state.description}
                     error={this.state.error}
                   />
